@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 
-const AddTask = () => {
+const AddTask = ({onSave}) => {
     const [task, setTask] = useState({
         id: crypto.randomUUID(),
         title: "",
@@ -11,6 +11,41 @@ const AddTask = () => {
     })
     const [isAdd, setIsAdd] = useState(null)
     const [errors, setErrors] = useState({})
+
+    const validateForm = () => {
+        const newErrors  = {}
+        if(!task.title.trim()){
+            newErrors.title = 'title is required'
+        }
+        if(!task.description){
+            newErrors.description = 'Description is required'
+        }
+        if (!task.tags || task.tags.length === 0){
+            newErrors.tags = 'at least one valid tag is required'
+        }
+        else {
+            const hasEmptyTags = task.tags.some(tag => !tag.trim())
+            if (hasEmptyTags) {
+                newErrors.tags = 'empty tags are not allowed'
+            }
+        }
+        if(!task.priority){
+            newErrors.tags = 'priority is required'
+        }
+        setErrors(newErrors)
+        return Object.keys((newErrors).length === 0)
+    }
+
+    const handleSubmit = (e) => {
+       e.preventDefault()
+       const cleanedTask = {
+           ...task,
+           tags: task.tags.filter(tag => tag.trim())
+       }
+       if (validateForm()) {
+           onSave(cleanedTask, isAdd)
+       }
+    }
     return (
         <>
         <div className="bg-gradient-to-br from-black/70 via-indigo-950/50 to-purple-950/50 backdrop-blur-lg h-full w-full z-10 absolute top-0 left-0"></div>
